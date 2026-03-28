@@ -3,9 +3,9 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from src.data_loader import get_csv, profil_client
-from src.statistics import get_kpi
-from src.ui import afficher_metriques, afficher_top_flop
+from components.data_loader import get_csv, profil_client
+from components.logic import get_kpi
+from components.ui import afficher_metriques, afficher_top_flop
 
 
 # --- 1. CONFIGURATION PAGE ---

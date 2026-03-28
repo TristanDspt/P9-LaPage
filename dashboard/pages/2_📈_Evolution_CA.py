@@ -4,8 +4,8 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from src.data_loader import get_csv, profil_client
-from src.ui import afficher_ca, afficher_bar_categ, afficher_donuts_categ
+from components.data_loader import get_csv, profil_client
+from components.ui import afficher_ca, afficher_bar_categ, afficher_donuts_categ
 
 # --- 1. CONFIGURATION PAGE ---
 st.set_page_config(page_title="KPI's", page_icon="📊", layout="wide")

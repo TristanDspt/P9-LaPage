@@ -1,5 +1,5 @@
 import streamlit as st
-from src.visualization import make_top_flop, make_ca, make_bar_categ, make_donuts_categ
+from components.charts import make_top_flop, make_ca, make_bar_categ, make_donuts_categ
 
 def afficher_metriques(kpis):
     col1, col2, col3 = st.columns(3)
