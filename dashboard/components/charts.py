@@ -159,8 +159,6 @@ def make_corr_age_ca(df):
 
     # Habillage
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
         showlegend=False,
         height=630,
         width=960,
@@ -174,9 +172,9 @@ def make_corr_age_ca(df):
                     gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
 
     # Droite de régression pour ca_par_age
-    z = np.polyfit(ca_par_age['age'], ca_par_age['ca'], 1)
+    z = np.polyfit(ca_par_age['age'], ca_par_age['price'], 1)
     p = np.poly1d(z)
-    x_line = np.linspace(ca_par_age['age'].min(), ca_par_age['age'].max(), 100)
+    x_line = np.linspace(ca_par_age['age'].min(), ca_par_age['price'].max(), 100)
 
     fig.add_trace(go.Scatter(
         x=x_line, y=p(x_line),
@@ -185,7 +183,7 @@ def make_corr_age_ca(df):
     ), row=1, col=1)
 
     # Droite de régression pour profil_age
-    z = np.polyfit(profil_age['age'], profil_age['ca'], 1)
+    z = np.polyfit(profil_age['age'], profil_age['price'], 1)
     p = np.poly1d(z)
     x_line = np.linspace(profil_age['age'].min(), profil_age['age'].max(), 100)
 
@@ -212,8 +210,6 @@ def make_corr_age_freq(df):
 
     # Habillage
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
         showlegend=False,
         height=630,
         width=960,
@@ -238,47 +234,6 @@ def make_corr_age_freq(df):
     ))
 
     return fig
-
-
-# Préparation des données
-counts = categ_fav.groupby(['tranche_age', 'categ'], observed=True).size().reset_index(name='nb_clients')
-
-fig = go.Figure()
-
-fig.add_trace(go.Bar(
-    name='Catégorie 0',
-    x=counts[counts['categ'] == 0]['tranche_age'],
-    y=counts[counts['categ'] == 0]['nb_clients'],
-    marker_color='#1B2A4A'
-))
-fig.add_trace(go.Bar(
-    name='Catégorie 1',
-    x=counts[counts['categ'] == 1]['tranche_age'],
-    y=counts[counts['categ'] == 1]['nb_clients'],
-    marker_color='#0D6E8A'
-))
-fig.add_trace(go.Bar(
-    name='Catégorie 2',
-    x=counts[counts['categ'] == 2]['tranche_age'],
-    y=counts[counts['categ'] == 2]['nb_clients'],
-    marker_color='#E8A020'
-))
-
-# Habillage
-fig.update_layout(
-    plot_bgcolor='white',
-    paper_bgcolor='white',
-    height=630,
-    width=960,
-    margin=dict(t=50, b=50, l=80, r=20),
-    legend=dict(orientation='h', y=1.1, x=0.5, xanchor='center'),
-)
-
-# Fond et Axes
-fig.update_xaxes(title_text="Tranches d'âges", showgrid=True, gridcolor='#E8F4F8', 
-                gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
-fig.update_yaxes(title_text="Nombre de clients", showgrid=True, gridcolor='#E8F4F8', 
-                gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
 
 
 def make_corr_tranche_categ(df):
@@ -317,22 +272,17 @@ def make_corr_tranche_categ(df):
         y=counts[counts['categ'] == 2]['nb_clients'],
         marker_color='#E8A020'
     ))
-
     # Habillage
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
         height=630,
         width=960,
         margin=dict(t=50, b=50, l=80, r=20),
         legend=dict(orientation='h', y=1.1, x=0.5, xanchor='center'),
         barmode='group'
     )
-
     # Fond et Axes
     fig.update_xaxes(title_text="Tranches d'âges", showgrid=True, gridcolor='#E8F4F8', 
                     gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
     fig.update_yaxes(title_text="Nombre de clients", showgrid=True, gridcolor='#E8F4F8', 
                     gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
-    
     return fig

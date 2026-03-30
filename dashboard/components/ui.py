@@ -1,5 +1,6 @@
 import streamlit as st
-from components.charts import make_top_flop, make_ca, make_bar_categ, make_donuts_categ
+from components.charts import make_top_flop, make_ca, make_bar_categ, make_donuts_categ, make_corr_age_ca, make_corr_age_freq, make_corr_tranche_categ
+
 
 
 def afficher_metriques_kpi(kpis):
@@ -72,4 +73,16 @@ def afficher_bar_categ(df):
 
 def afficher_donuts_categ(df):
     fig = make_donuts_categ(df)
+    st.plotly_chart(fig, width='stretch')
+
+def afficher_corr_age_ca(df):
+    fig = make_corr_age_ca(df)
+    st.plotly_chart(fig, width='stretch')
+
+def afficher_corr_age_freq(df):
+    fig = make_corr_age_freq(df)
+    st.plotly_chart(fig, width='stretch')
+
+def afficher_corr_tranche_categ(df):
+    fig = make_corr_tranche_categ(df)
     st.plotly_chart(fig, width='stretch')

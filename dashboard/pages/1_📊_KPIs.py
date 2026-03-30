@@ -23,7 +23,7 @@ st.markdown("""
     [data-testid="stMetricLabel"] {
         justify-content: center;
         width: 100%;
-        min-height: 2.5rem;
+        min-height: 2rem;
         display: flex;
         align-items: flex-end;
     }

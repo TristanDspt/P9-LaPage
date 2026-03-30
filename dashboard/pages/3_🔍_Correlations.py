@@ -4,6 +4,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from components.data_loader import get_csv
+from components.ui import afficher_corr_age_ca, afficher_corr_age_freq, afficher_corr_tranche_categ
 
 
 # --- 1. CONFIGURATION PAGE ---
@@ -47,7 +48,7 @@ tab1, tab2, tab3 = st.tabs([
 with tab1:
     col_graph, col_text = st.columns([2, 1])
     with col_graph:
-        st.info("📌 Graphique à intégrer — Âge & CA global / Âge & CA par client")
+        afficher_corr_age_ca(df)
     with col_text:
         st.markdown("**Résultat**")
         st.markdown("Spearman : **−0,88** (global) / **−0,18** (par client)")
@@ -66,7 +67,7 @@ with tab1:
 with tab2:
     col_graph, col_text = st.columns([2, 1])
     with col_graph:
-        st.info("📌 Graphique à intégrer — Âge & Fréquence d'achat")
+        afficher_corr_age_freq(df)
     with col_text:
         st.markdown("**Résultat**")
         st.markdown("Spearman : **+0,11**")
@@ -84,7 +85,7 @@ with tab2:
 with tab3:
     col_graph, col_text = st.columns([2, 1])
     with col_graph:
-        st.info("📌 Graphique à intégrer — Tranche d'âge & Catégorie favorite")
+        afficher_corr_tranche_categ(df)
     with col_text:
         st.markdown("**Résultat**")
         st.markdown("V de Cramer : **0,416** — Forte ★")
