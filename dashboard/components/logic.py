@@ -1,29 +1,48 @@
 import pandas as pd
 
-def get_kpi(df):
 
-    ca = df.price.sum()
-    catalogue = df.id_prod.nunique()
+def get_kpi(df_current, df_prev):
+    """
+    Calcule les KPIs du mois courant + delta vs mois précédent.
 
-    df_clients = df.groupby(pd.Grouper(freq='MS'))['client_id'].nunique().rename('clients_unique').reset_index()
-    moy_unique = df_clients.clients_unique.mean()
+    Args:
+        df_current : DataFrame filtré sur le mois courant
+        df_prev    : DataFrame filtré sur le mois précédent (mêmes filtres)
+    """
 
-    best_categ_name = df.groupby('categ', observed=True)['price'].sum().idxmax()
-    best_categ_value = df.groupby('categ', observed=True)['price'].sum().max()
+    def safe_idxmax(series):
+        return series.idxmax() if not series.empty else "-"
 
-    df_ventes = df.groupby(pd.Grouper(freq='MS'))['session_id'].nunique().rename('ventes_mois').reset_index()
-    moy_ventes = df_ventes.ventes_mois.mean()
+    def safe_max(series):
+        return series.max() if not series.empty else 0
 
-    best_pdt_name = df.groupby('id_prod')['price'].sum().idxmax()
-    best_pdt_value = df.groupby('id_prod')['price'].sum().max()
+    # --- Mois courant ---
+    ca = df_current['price'].sum()
+    catalogue = df_current['id_prod'].nunique()
+    clients_unique = df_current['client_id'].nunique()
+    sessions = df_current['session_id'].nunique()
+    panier_moyen = ca / sessions if sessions > 0 else 0
+
+    ca_categ = df_current.groupby('categ', observed=True)['price'].sum()
+    best_categ_name = safe_idxmax(ca_categ)
+    best_categ_value = safe_max(ca_categ)
+
+    # --- Mois précédent (deltas) ---
+    ca_prev = df_prev['price'].sum()
+    clients_prev = df_prev['client_id'].nunique()
+    sessions_prev = df_prev['session_id'].nunique()
+    panier_moyen_prev = ca_prev / sessions_prev if sessions_prev > 0 else 0
 
     return {
         "ca": ca,
+        "ca_delta": ca - ca_prev,
+        "sessions": sessions,
+        "sessions_delta": sessions - sessions_prev,
+        "clients_unique": clients_unique,
+        "clients_delta": clients_unique - clients_prev,
+        "panier_moyen": panier_moyen,
+        "panier_moyen_delta": panier_moyen - panier_moyen_prev,
         "catalogue": catalogue,
-        "moy_unique": moy_unique,
         "best_categ_name": best_categ_name,
         "best_categ_value": best_categ_value,
-        "moy_ventes": moy_ventes,
-        "best_pdt_name": best_pdt_name,
-        "best_pdt_value": best_pdt_value
     }

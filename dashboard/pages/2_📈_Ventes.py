@@ -6,11 +6,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from components.data_loader import get_csv, filtrer_df, filtrer_df_annee, get_mois_precedent
 from components.sidebar import afficher_sidebar, MOIS
 from components.logic import get_kpi
-from components.ui import afficher_metriques_kpi, afficher_ca
+from components.ui import afficher_metriques_ventes, afficher_top_flop, afficher_bar_categ, afficher_donuts_categ
 
 
 # --- 1. CONFIGURATION PAGE ---
-st.set_page_config(page_title="KPI's", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Ventes", page_icon="📈", layout="wide")
 
 st.markdown("""
     <style>
@@ -46,12 +46,12 @@ df_prev = filtrer_df(df, prev_mois, prev_annee, segments, categories)
 
 kpis = get_kpi(df_current, df_prev)
 
-# Données annuelles pour le graph CA (filtre mois ignoré)
+# Données annuelles pour les graphiques (filtre mois ignoré)
 df_annee = filtrer_df_annee(df, annee, segments, categories)
 
 
 # --- 4. INTERFACE ---
-st.markdown("<h1 style='text-align: center;'>📊 KPI's</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>📈 Ventes</h1>", unsafe_allow_html=True)
 st.markdown(
     f"<h2 style='text-align: center;'>{MOIS[mois_num - 1]} {annee}</h2>",
     unsafe_allow_html=True
@@ -61,11 +61,17 @@ st.divider()
 if df_current.empty:
     st.warning("Aucune donnée pour la période et les filtres sélectionnés.")
 else:
-    afficher_metriques_kpi(kpis)
+    afficher_metriques_ventes(kpis)
     st.divider()
-    _, col1, col2, _ = st.columns(4)
-    with col1:
-        periode = st.selectbox("Vue", ['Mois', 'Jour'], help="CA mensuel ou journalier")
-    with col2:
-        window = st.number_input("Moyenne Mobile", min_value=1, value=3, step=1)
-    afficher_ca(df_annee, periode, window)
+
+    tab1, tab2 = st.tabs(["🏆 Top / Flop", "📊 Répartition Catégories"])
+
+    with tab1:
+        afficher_top_flop(df_annee)
+
+    with tab2:
+        col1, col2 = st.columns(2)
+        with col1:
+            afficher_bar_categ(df_annee)
+        with col2:
+            afficher_donuts_categ(df_annee)

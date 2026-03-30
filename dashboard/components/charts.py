@@ -1,5 +1,7 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
+import numpy as np
 
 
 def make_top_flop(df, choix):
@@ -61,7 +63,7 @@ def make_ca(df, periode, window):
         y=df['moy_mobile'],
         name="Moyenne mobile",
         mode='lines+markers',
-        marker=dict(size=5),
+        marker=dict(size=4),
         line=dict(color='#ffa600'),
         hovertemplate="%{y:,.0f} €"
     ))
@@ -132,4 +134,205 @@ def make_donuts_categ(df):
         title="Répartition du Catalogue par Catégorie"
     )
 
+    return fig
+
+def make_corr_age_ca(df):
+    ca_par_age = df.groupby('age')['price'].sum().reset_index()
+    profil_age = df.groupby(['client_id', 'age'])['price'].sum().reset_index()
+
+    fig = make_subplots(rows=2, cols=1, vertical_spacing=0.15,
+                        subplot_titles=["CA total par âge", "CA total par client selon son âge"])
+
+    # Graph 1 — ca_par_age
+    fig.add_trace(go.Scatter(
+        x=ca_par_age['age'], y=ca_par_age['price'],
+        mode='markers',
+        marker=dict(color='#0D6E8A', size=6)
+    ), row=1, col=1)
+
+    # Graph 2 — profil_age  
+    fig.add_trace(go.Scatter(
+        x=profil_age['age'], y=profil_age['price'],
+        mode='markers',
+        marker=dict(color='#0D6E8A', size=4, opacity=0.5)
+    ), row=2, col=1)
+
+    # Habillage
+    fig.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        height=630,
+        width=960,
+        margin=dict(t=50, b=50, l=80, r=20)
+    )
+
+    # Fond et Axes
+    fig.update_xaxes(title_text="Âge", showgrid=True, gridcolor='#E8F4F8', 
+                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+    fig.update_yaxes(title_text="CA (€)", showgrid=True, gridcolor='#E8F4F8', 
+                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+
+    # Droite de régression pour ca_par_age
+    z = np.polyfit(ca_par_age['age'], ca_par_age['ca'], 1)
+    p = np.poly1d(z)
+    x_line = np.linspace(ca_par_age['age'].min(), ca_par_age['age'].max(), 100)
+
+    fig.add_trace(go.Scatter(
+        x=x_line, y=p(x_line),
+        mode='lines',
+        line=dict(color='#E8A020', width=2)
+    ), row=1, col=1)
+
+    # Droite de régression pour profil_age
+    z = np.polyfit(profil_age['age'], profil_age['ca'], 1)
+    p = np.poly1d(z)
+    x_line = np.linspace(profil_age['age'].min(), profil_age['age'].max(), 100)
+
+    fig.add_trace(go.Scatter(
+        x=x_line, y=p(x_line),
+        mode='lines',
+        line=dict(color='#E8A020', width=2)
+    ), row=2, col=1)
+
+    return fig
+
+
+def make_corr_age_freq(df):
+    freq = df.groupby(['client_id', 'age']).agg({'session_id': 'nunique'}).reset_index()
+    
+    fig = go.Figure()
+
+    # Dessin
+    fig.add_trace(go.Scatter(
+        x=freq['age'], y=freq['session_id'],
+        mode='markers',
+        marker=dict(color='#0D6E8A', size=6)
+    ))
+
+    # Habillage
+    fig.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        showlegend=False,
+        height=630,
+        width=960,
+        margin=dict(t=50, b=50, l=80, r=20)
+    )
+
+    # Fond et Axes
+    fig.update_xaxes(title_text="Âge", showgrid=True, gridcolor='#E8F4F8', 
+                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+    fig.update_yaxes(title_text="Fréquence", showgrid=True, gridcolor='#E8F4F8', 
+                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+
+    # Droite de régression
+    z = np.polyfit(freq['age'], freq['session_id'], 1)
+    p = np.poly1d(z)
+    x_line = np.linspace(freq['age'].min(), freq['age'].max(), 100)
+
+    fig.add_trace(go.Scatter(
+        x=x_line, y=p(x_line),
+        mode='lines',
+        line=dict(color='#E8A020', width=2)
+    ))
+
+    return fig
+
+
+# Préparation des données
+counts = categ_fav.groupby(['tranche_age', 'categ'], observed=True).size().reset_index(name='nb_clients')
+
+fig = go.Figure()
+
+fig.add_trace(go.Bar(
+    name='Catégorie 0',
+    x=counts[counts['categ'] == 0]['tranche_age'],
+    y=counts[counts['categ'] == 0]['nb_clients'],
+    marker_color='#1B2A4A'
+))
+fig.add_trace(go.Bar(
+    name='Catégorie 1',
+    x=counts[counts['categ'] == 1]['tranche_age'],
+    y=counts[counts['categ'] == 1]['nb_clients'],
+    marker_color='#0D6E8A'
+))
+fig.add_trace(go.Bar(
+    name='Catégorie 2',
+    x=counts[counts['categ'] == 2]['tranche_age'],
+    y=counts[counts['categ'] == 2]['nb_clients'],
+    marker_color='#E8A020'
+))
+
+# Habillage
+fig.update_layout(
+    plot_bgcolor='white',
+    paper_bgcolor='white',
+    height=630,
+    width=960,
+    margin=dict(t=50, b=50, l=80, r=20),
+    legend=dict(orientation='h', y=1.1, x=0.5, xanchor='center'),
+)
+
+# Fond et Axes
+fig.update_xaxes(title_text="Tranches d'âges", showgrid=True, gridcolor='#E8F4F8', 
+                gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+fig.update_yaxes(title_text="Nombre de clients", showgrid=True, gridcolor='#E8F4F8', 
+                gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+
+
+def make_corr_tranche_categ(df):
+    # Préparation du df
+    count = df.groupby(['client_id', 'age', 'categ'], observed=True).size().reset_index(name='nb_achats')
+    count = count.sort_values(['client_id', 'nb_achats'], ascending=[True, False])
+    categ_fav = count.drop_duplicates('client_id').copy()
+
+    # Création de tranche d'age pour pouvoir calculer une force sur la correlation
+    categ_fav['tranche_age'] = pd.cut(
+                            categ_fav['age'], bins=[17, 34, 59, 100], 
+                            labels=['18-34', '35-59', '60+']
+                            )
+    categ_fav['tranche_age'] = categ_fav['tranche_age'].astype('category')
+
+    # Préparation des données
+    counts = categ_fav.groupby(['tranche_age', 'categ'], observed=True).size().reset_index(name='nb_clients')
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        name='Catégorie 0',
+        x=counts[counts['categ'] == 0]['tranche_age'],
+        y=counts[counts['categ'] == 0]['nb_clients'],
+        marker_color='#1B2A4A'
+    ))
+    fig.add_trace(go.Bar(
+        name='Catégorie 1',
+        x=counts[counts['categ'] == 1]['tranche_age'],
+        y=counts[counts['categ'] == 1]['nb_clients'],
+        marker_color='#0D6E8A'
+    ))
+    fig.add_trace(go.Bar(
+        name='Catégorie 2',
+        x=counts[counts['categ'] == 2]['tranche_age'],
+        y=counts[counts['categ'] == 2]['nb_clients'],
+        marker_color='#E8A020'
+    ))
+
+    # Habillage
+    fig.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        height=630,
+        width=960,
+        margin=dict(t=50, b=50, l=80, r=20),
+        legend=dict(orientation='h', y=1.1, x=0.5, xanchor='center'),
+        barmode='group'
+    )
+
+    # Fond et Axes
+    fig.update_xaxes(title_text="Tranches d'âges", showgrid=True, gridcolor='#E8F4F8', 
+                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+    fig.update_yaxes(title_text="Nombre de clients", showgrid=True, gridcolor='#E8F4F8', 
+                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+    
     return fig
