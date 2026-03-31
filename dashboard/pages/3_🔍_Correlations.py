@@ -13,6 +13,7 @@ st.set_page_config(page_title="Corrélations", page_icon="🔍", layout="wide")
 
 # --- 2. CHARGEMENT (pas de sidebar sur cette page) ---
 df = get_csv()
+df_filtre = df.query("segment == 'BtoC'")
 
 
 # --- 3. INTERFACE ---
@@ -48,7 +49,7 @@ tab1, tab2, tab3 = st.tabs([
 with tab1:
     col_graph, col_text = st.columns([2, 1])
     with col_graph:
-        afficher_corr_age_ca(df)
+        afficher_corr_age_ca(df_filtre)
     with col_text:
         st.markdown("**Résultat**")
         st.markdown("Spearman : **−0,88** (global) / **−0,18** (par client)")
@@ -67,7 +68,7 @@ with tab1:
 with tab2:
     col_graph, col_text = st.columns([2, 1])
     with col_graph:
-        afficher_corr_age_freq(df)
+        afficher_corr_age_freq(df_filtre)
     with col_text:
         st.markdown("**Résultat**")
         st.markdown("Spearman : **+0,11**")
@@ -85,7 +86,7 @@ with tab2:
 with tab3:
     col_graph, col_text = st.columns([2, 1])
     with col_graph:
-        afficher_corr_tranche_categ(df)
+        afficher_corr_tranche_categ(df_filtre)
     with col_text:
         st.markdown("**Résultat**")
         st.markdown("V de Cramer : **0,416** — Forte ★")

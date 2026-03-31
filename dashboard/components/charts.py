@@ -137,6 +137,7 @@ def make_donuts_categ(df):
     return fig
 
 def make_corr_age_ca(df):
+    df.reset_index()
     ca_par_age = df.groupby('age')['price'].sum().reset_index()
     profil_age = df.groupby(['client_id', 'age'])['price'].sum().reset_index()
 
@@ -145,6 +146,7 @@ def make_corr_age_ca(df):
 
     # Graph 1 — ca_par_age
     fig.add_trace(go.Scatter(
+        name="CA",
         x=ca_par_age['age'], y=ca_par_age['price'],
         mode='markers',
         marker=dict(color='#0D6E8A', size=6)
@@ -152,6 +154,7 @@ def make_corr_age_ca(df):
 
     # Graph 2 — profil_age  
     fig.add_trace(go.Scatter(
+        name="CA",
         x=profil_age['age'], y=profil_age['price'],
         mode='markers',
         marker=dict(color='#0D6E8A', size=4, opacity=0.5)
@@ -160,23 +163,18 @@ def make_corr_age_ca(df):
     # Habillage
     fig.update_layout(
         showlegend=False,
-        height=630,
-        width=960,
-        margin=dict(t=50, b=50, l=80, r=20)
+        height=600,
+        margin=dict(t=50, b=50, l=80, r=20),
+        hovermode='x unified'
     )
-
-    # Fond et Axes
-    fig.update_xaxes(title_text="Âge", showgrid=True, gridcolor='#E8F4F8', 
-                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
-    fig.update_yaxes(title_text="CA (€)", showgrid=True, gridcolor='#E8F4F8', 
-                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
 
     # Droite de régression pour ca_par_age
     z = np.polyfit(ca_par_age['age'], ca_par_age['price'], 1)
     p = np.poly1d(z)
-    x_line = np.linspace(ca_par_age['age'].min(), ca_par_age['price'].max(), 100)
+    x_line = np.linspace(ca_par_age['age'].min(), ca_par_age['age'].max(), 100)
 
     fig.add_trace(go.Scatter(
+        name="Régression",
         x=x_line, y=p(x_line),
         mode='lines',
         line=dict(color='#E8A020', width=2)
@@ -188,6 +186,7 @@ def make_corr_age_ca(df):
     x_line = np.linspace(profil_age['age'].min(), profil_age['age'].max(), 100)
 
     fig.add_trace(go.Scatter(
+        name="Régression",
         x=x_line, y=p(x_line),
         mode='lines',
         line=dict(color='#E8A020', width=2)
@@ -211,16 +210,10 @@ def make_corr_age_freq(df):
     # Habillage
     fig.update_layout(
         showlegend=False,
-        height=630,
-        width=960,
-        margin=dict(t=50, b=50, l=80, r=20)
+        height=500,
+        margin=dict(t=50, b=50, l=80, r=20),
+        hovermode='x unified'
     )
-
-    # Fond et Axes
-    fig.update_xaxes(title_text="Âge", showgrid=True, gridcolor='#E8F4F8', 
-                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
-    fig.update_yaxes(title_text="Fréquence", showgrid=True, gridcolor='#E8F4F8', 
-                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
 
     # Droite de régression
     z = np.polyfit(freq['age'], freq['session_id'], 1)
@@ -274,15 +267,11 @@ def make_corr_tranche_categ(df):
     ))
     # Habillage
     fig.update_layout(
-        height=630,
-        width=960,
+        height=500,
         margin=dict(t=50, b=50, l=80, r=20),
         legend=dict(orientation='h', y=1.1, x=0.5, xanchor='center'),
+        hovermode='x unified',
         barmode='group'
     )
-    # Fond et Axes
-    fig.update_xaxes(title_text="Tranches d'âges", showgrid=True, gridcolor='#E8F4F8', 
-                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
-    fig.update_yaxes(title_text="Nombre de clients", showgrid=True, gridcolor='#E8F4F8', 
-                    gridwidth=1, showline=True, linecolor='#D1DCE8', linewidth=1)
+
     return fig
